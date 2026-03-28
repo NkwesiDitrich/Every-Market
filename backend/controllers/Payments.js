@@ -878,9 +878,11 @@ exports.createFlutterwavePayment = async (req, res) => {
     const currency = (order.currency || "XAF").toUpperCase();
 
     // For XAF/XOF regions Flutterwave uses mobilemoneyxaf/mobilemoneyxof.
-    const payment_options = currency === "XOF" ? "mobilemoneyxof" : "mobilemoneyxaf";
+    // Sanitize origin (remove trailing slash)
+    const sanitizedOrigin = process.env.ORIGIN ? process.env.ORIGIN.replace(/\/$/, "") : "";
+    const redirect_url = `${sanitizedOrigin}/payment/success?provider=flutterwave&orderId=${order._id}`;
 
-    const redirect_url = `${process.env.ORIGIN}/payment/success?provider=flutterwave&orderId=${order._id}`;
+    console.log(`Initiating Flutterwave payment for order ${order._id} (${amount} ${currency})`);
 
     const resp = await axios.post(
       "https://api.flutterwave.com/v3/payments",
@@ -912,8 +914,9 @@ exports.createFlutterwavePayment = async (req, res) => {
 
     return res.status(200).json({ url: link });
   } catch (error) {
-    console.log(error?.response?.data || error);
-    return res.status(500).json({ message: "Error creating mobile money payment" });
+    console.error("Flutterwave Create Payment Error:", error?.response?.data || error.message || error);
+    const errorDetail = error?.response?.data?.message || error.message || "Unknown error";
+    return res.status(500).json({ message: `Error creating mobile money payment: ${errorDetail}` });
   } finally {
     session.endSession();
   }
@@ -978,8 +981,9 @@ exports.createFlutterwavePaymentGuest = async (req, res) => {
 
     return res.status(200).json({ url: link, orderId: String(order._id) });
   } catch (error) {
-    console.log(error?.response?.data || error);
-    return res.status(500).json({ message: "Error creating mobile money payment" });
+    console.error("Flutterwave Guest Create Payment Error:", error?.response?.data || error.message || error);
+    const errorDetail = error?.response?.data?.message || error.message || "Unknown error";
+    return res.status(500).json({ message: `Error creating mobile money payment: ${errorDetail}` });
   } finally {
     session.endSession();
   }
