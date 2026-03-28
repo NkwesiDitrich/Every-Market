@@ -1,0 +1,112 @@
+require("dotenv").config()
+const express = require('express')
+const cors = require('cors')
+const morgan = require("morgan")
+const cookieParser = require("cookie-parser")
+const helmet = require("helmet")
+const passport = require("passport")
+const authRoutes = require("./routes/Auth")
+const paymentsRoutes = require("./routes/Payments")
+const productRoutes = require("./routes/Product")
+const orderRoutes = require("./routes/Order")
+const inventoryRoutes = require("./routes/Inventory")
+const cartRoutes = require("./routes/Cart")
+const brandRoutes = require("./routes/Brand")
+const categoryRoutes = require("./routes/Category")
+const userRoutes = require("./routes/User")
+const addressRoutes = require('./routes/Address')
+const reviewRoutes = require("./routes/Review")
+const wishlistRoutes = require("./routes/Wishlist")
+const bannerRoutes = require("./routes/Banner")
+const couponRoutes = require("./routes/Coupon")
+const adminUserRoutes = require("./routes/AdminUser")
+const sellerRoutes = require("./routes/Seller")
+const adminProductRoutes = require("./routes/AdminProduct")
+const analyticsRoutes = require("./routes/Analytics")
+const returnRequestRoutes = require("./routes/ReturnRequest")
+const disputeRoutes = require("./routes/Dispute")
+const adminCategoryRoutes = require("./routes/AdminCategory")
+const featuredCollectionRoutes = require("./routes/FeaturedCollection")
+const searchSettingsRoutes = require("./routes/SearchSettings")
+const campaignRoutes = require("./routes/Campaign")
+const notificationRoutes = require("./routes/Notification")
+const loyaltyPointRoutes = require("./routes/LoyaltyPoint")
+const systemSettingsRoutes = require("./routes/SystemSettings")
+const conversationRoutes = require("./routes/Conversation")
+const uploadRoutes = require("./routes/Upload")
+const auditLogRoutes = require("./routes/AuditLog")
+const pushNotificationRoutes = require("./routes/PushNotification")
+const logisticsRoutes = require("./routes/Logistics")
+const { connectToDB } = require("./database/db")
+const paymentsController = require("./controllers/Payments")
+
+
+// server init
+const server = express()
+
+// makes rate-limiting and secure cookies work behind proxies (Render/Vercel/Nginx)
+server.set("trust proxy", 1)
+
+// database connection
+connectToDB()
+
+
+// middlewares
+server.use(helmet())
+const origins = process.env.ORIGIN ? process.env.ORIGIN.split(',') : ["http://localhost:3000"]
+server.use(cors({ origin: origins, credentials: true, exposedHeaders: ['X-Total-Count'], methods: ['GET', 'POST', 'PATCH', 'DELETE'] }))
+
+// Webhooks MUST use raw body for signature verification
+server.post("/webhooks/stripe", express.raw({ type: "application/json" }), paymentsController.stripeWebhook)
+server.post("/webhooks/paypal", express.raw({ type: "application/json" }), paymentsController.paypalWebhook)
+
+server.use(express.json({ limit: "200kb" }))
+server.use(cookieParser())
+server.use(morgan("tiny"))
+server.use(passport.initialize())
+
+// JSON webhooks (no raw signature)
+server.post("/webhooks/flutterwave", paymentsController.flutterwaveWebhook)
+
+// routeMiddleware
+server.use("/auth", authRoutes)
+server.use("/payments", paymentsRoutes)
+server.use("/users", userRoutes)
+server.use("/products", productRoutes)
+server.use("/orders", orderRoutes)
+server.use("/inventory", inventoryRoutes)
+server.use("/cart", cartRoutes)
+server.use("/brands", brandRoutes)
+server.use("/categories", categoryRoutes)
+server.use("/address", addressRoutes)
+server.use("/reviews", reviewRoutes)
+server.use("/wishlist", wishlistRoutes)
+server.use("/banners", bannerRoutes)
+server.use("/coupons", couponRoutes)
+server.use("/admin/users", adminUserRoutes)
+server.use("/admin/products", adminProductRoutes)
+server.use("/admin/analytics", analyticsRoutes)
+server.use("/sellers", sellerRoutes)
+server.use("/returns", returnRequestRoutes)
+server.use("/disputes", disputeRoutes)
+server.use("/admin/categories", adminCategoryRoutes)
+server.use("/featured-collections", featuredCollectionRoutes)
+server.use("/admin/search-settings", searchSettingsRoutes)
+server.use("/campaigns", campaignRoutes)
+server.use("/notifications", notificationRoutes)
+server.use("/loyalty", loyaltyPointRoutes)
+server.use("/admin/settings", systemSettingsRoutes)
+server.use("/conversations", conversationRoutes)
+server.use("/upload", uploadRoutes)
+server.use("/admin/audit-logs", auditLogRoutes)
+server.use("/push-notifications", pushNotificationRoutes)
+server.use("/logistics", logisticsRoutes)
+
+server.get("/", (req, res) => {
+    res.status(200).json({ message: 'running' })
+})
+
+const PORT = Number(process.env.PORT || 8000)
+server.listen(PORT, () => {
+    console.log(`server [STARTED] ~ http://localhost:${PORT}`);
+})
