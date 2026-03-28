@@ -47,6 +47,12 @@ const recordProductPurchaseEvents = async (order) => {
 exports._recordProductPurchaseEvents = recordProductPurchaseEvents;
 
 const getCurrency = () => (process.env.CURRENCY || "usd").toLowerCase();
+ 
+/** Helper for Flutterwave payment options */
+const getFlwPaymentOptions = (curr) => {
+  const c = String(curr || "XAF").toUpperCase();
+  return c === "XOF" ? "mobilemoneyxof" : "mobilemoneyxaf";
+};
 
 const moneyToStripeAmount = (n) => {
   const v = Number(n || 0);
@@ -850,6 +856,8 @@ exports.createFlutterwavePayment = async (req, res) => {
     const addressId = req.body?.addressId;
     const method = req.body?.method; // "MOBILE_MONEY" | "ORANGE_MONEY"
 
+
+
     if (!addressId) return res.status(400).json({ message: "addressId is required" });
     if (!["MOBILE_MONEY", "ORANGE_MONEY"].includes(method)) {
       return res.status(400).json({ message: "method must be MOBILE_MONEY or ORANGE_MONEY" });
@@ -876,6 +884,7 @@ exports.createFlutterwavePayment = async (req, res) => {
     const { order } = created;
     const amount = Number(order.total || 0).toFixed(2);
     const currency = (order.currency || "XAF").toUpperCase();
+    const payment_options = getFlwPaymentOptions(currency);
 
     // For XAF/XOF regions Flutterwave uses mobilemoneyxaf/mobilemoneyxof.
     // Sanitize origin (remove trailing slash)
@@ -950,7 +959,7 @@ exports.createFlutterwavePaymentGuest = async (req, res) => {
     const { order } = created;
     const amount = Number(order.total || 0).toFixed(2);
     const currency = (order.currency || "XAF").toUpperCase();
-    const payment_options = currency === "XOF" ? "mobilemoneyxof" : "mobilemoneyxaf";
+    const payment_options = getFlwPaymentOptions(currency);
     const redirect_url = `${process.env.ORIGIN}/payment/success?provider=flutterwave&orderId=${order._id}`;
 
     const resp = await axios.post(
