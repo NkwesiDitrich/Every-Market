@@ -7,10 +7,15 @@ const inventoryHistorySchema = new Schema({
         ref: "Product",
         required: true
     },
-    user: {
+    owner: {
         type: Schema.Types.ObjectId,
         ref: "User",
         required: true
+    },
+    performedBy: {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+        required: false
     },
     type: {
         type: String,

@@ -46,10 +46,12 @@ exports.checkAndNotifyStock = async (product) => {
  * @param {number} quantity - Quantity being sold.
  * @param {Object} order - The Order object (used for reference).
  * @param {Object} session - Mongoose session for transaction.
+ * @param {string} performedBy - ID of the user performing the action (optional).
  */
-exports.decrementStockAndLog = async (productId, quantity, order, session) => {
+exports.decrementStockAndLog = async (productId, quantity, order, session, performedBy) => {
     const Product = require("../models/Product");
     const InventoryHistory = require("../models/InventoryHistory");
+    const User = require("../models/User");
 
     const updated = await Product.findOneAndUpdate(
         { _id: productId, isDeleted: false, stockQuantity: { $gte: quantity } },
@@ -61,9 +63,22 @@ exports.decrementStockAndLog = async (productId, quantity, order, session) => {
         throw new Error("Insufficient stock");
     }
 
+    // Determine the owner (seller). If missing, fallback to the first admin found.
+    let owner = updated.seller;
+    if (!owner) {
+        console.warn(`Product ${productId} has no assigned seller. Falling back to system admin for InventoryHistory owner.`);
+        const admin = await User.findOne({ isAdmin: true }).sort({ createdAt: 1 }).lean().exec();
+        owner = admin?._id;
+    }
+
+    if (!owner) {
+        throw new Error("Cannot log inventory history: No owner (seller) or system administrator found.");
+    }
+
     const history = new InventoryHistory({
         product: productId,
-        user: updated.seller,
+        owner: owner,
+        performedBy: performedBy || null,
         type: "sale",
         delta: -quantity,
         previousStock: updated.stockQuantity + quantity,

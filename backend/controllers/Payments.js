@@ -195,7 +195,7 @@ const buildOrderFromCart = async ({ userId, addressId, paymentMode, couponCode, 
     }
     
     // Use the core inventory helper
-    await inventoryHelper.decrementStockAndLog(productId, qty, order, session);
+    await inventoryHelper.decrementStockAndLog(productId, qty, order, session, userId);
   }
 
   await order.save({ session });
@@ -361,7 +361,7 @@ const buildOrderFromGuest = async ({ guestEmail, address, items, paymentMode, se
     }
     
     // Use the core inventory helper
-    await inventoryHelper.decrementStockAndLog(p._id, it.quantity, order, session);
+    await inventoryHelper.decrementStockAndLog(p._id, it.quantity, order, session, null);
   }
 
   await order.save({ session });
