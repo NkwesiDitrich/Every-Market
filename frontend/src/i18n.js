@@ -93,7 +93,16 @@ const resources = {
       "New Listing": "New Listing",
       "Product Name": "Product Name",
       "Short Description": "Short Description",
-      "Full Description": "Full Description"
+      "Full Description": "Full Description",
+      "common": {
+        "chat": "Chat",
+        "buyNow": "Buy Now"
+      },
+      "product": {
+        "addToCart": "Add to Cart",
+        "outOfStock": "Out of Stock",
+        "inCart": "Already in Cart"
+      }
     }
   },
   fr: {
@@ -186,7 +195,16 @@ const resources = {
       "New Listing": "Nouvelle Annonce",
       "Product Name": "Nom du Produit",
       "Short Description": "Description Courte",
-      "Full Description": "Description Complète"
+      "Full Description": "Description Complète",
+      "common": {
+        "chat": "Chat",
+        "buyNow": "Acheter"
+      },
+      "product": {
+        "addToCart": "Ajouter au panier",
+        "outOfStock": "Rupture de stock",
+        "inCart": "Déjà au panier"
+      }
     }
   }
 };
