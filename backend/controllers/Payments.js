@@ -232,7 +232,11 @@ const buildOrderFromCart = async ({ userId, addressId, paymentMode, couponCode, 
       });
 
       // 2. Notify Sellers
-      const sellerIds = new Set(cartItems.map(ci => ci.product?.seller?.toString()).filter(id => id));
+      const sellerIds = new Set(cartItems.map(ci => {
+        const s = ci.product?.seller;
+        if (!s) return null;
+        return s._id ? s._id.toString() : s.toString();
+      }).filter(id => id));
       for (const sellerId of sellerIds) {
         await notificationController.createNotification({
           title: "New Order Received",

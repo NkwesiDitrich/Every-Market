@@ -69,15 +69,19 @@ exports.deleteById = async (req, res) => {
 // Helper for other controllers
 exports.createNotification = async ({ title, body, recipient, targets, type, urgancy, link, createdBy }) => {
   try {
+    // Sanitize recipient and createdBy (extract ID if object)
+    const safeRecipient = recipient?._id || recipient;
+    const safeCreatedBy = createdBy?._id || createdBy;
+
     const notification = new Notification({
       title,
       body,
-      recipient,
+      recipient: safeRecipient,
       targets: targets || "user",
       type: type || "system",
       urgancy: urgancy || "low",
       link,
-      createdBy,
+      createdBy: safeCreatedBy,
     })
     await notification.save()
     return notification
