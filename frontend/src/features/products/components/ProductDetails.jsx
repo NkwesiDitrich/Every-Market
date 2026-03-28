@@ -392,16 +392,16 @@ export const ProductDetails = () => {
                                         <IconButton onClick={handleIncreaseQty} size="small"><AddIcon /></IconButton>
                                     </Stack>
                                     {!isMobile && (
-                                        <Stack direction="row" spacing={2} width="100%">
+                                        <Stack direction="row" spacing={2} width="100%" sx={{ flexWrap: { xs: 'wrap', sm: 'nowrap' }, gap: { xs: 2, sm: 0 } }}>
                                             <Button
                                                 variant="contained"
                                                 size="large"
                                                 onClick={handleAddToCart}
                                                 disabled={product.stockQuantity <= 0 || (cartItems.find(it => it.product._id === id)?.quantity || 0) >= product.stockQuantity}
                                                 startIcon={<ShoppingCartOutlinedIcon />}
-                                                sx={{ height: 50, flex: 2 }}
+                                                sx={{ height: 50, flex: 2, minWidth: { xs: '100%', sm: 'auto' } }}
                                             >
-                                                {product.stockQuantity <= 0 ? t('product.outOfStock') : (cartItems.find(it => it.product._id === id)?.quantity || 0) >= product.stockQuantity ? t('product.addedToCart') : t('product.addToCart')}
+                                                {product.stockQuantity <= 0 ? t('product.outOfStock') : (cartItems.find(it => it.product._id === id)?.quantity || 0) >= product.stockQuantity ? t('product.inCart') : t('product.addToCart')}
                                             </Button>
                                             <Button
                                                 variant="outlined"
@@ -409,7 +409,7 @@ export const ProductDetails = () => {
                                                 color="secondary"
                                                 onClick={handleStartChat}
                                                 startIcon={<ChatBubbleOutlineIcon />}
-                                                sx={{ height: 50, flex: 1 }}
+                                                sx={{ height: 50, flex: 1, minWidth: { xs: '100%', sm: 'auto' } }}
                                             >
                                                 {t('common.chat')}
                                             </Button>
@@ -511,9 +511,9 @@ export const ProductDetails = () => {
                             size="large"
                             onClick={handleAddToCart}
                             disabled={product.stockQuantity <= 0 || (cartItems.find(it => it.product._id === id)?.quantity || 0) >= product.stockQuantity}
-                            sx={{ fontSize: '0.8rem' }}
+                            sx={{ fontSize: '0.8rem', whiteSpace: 'nowrap' }}
                         >
-                            {product.stockQuantity <= 0 ? t('common.outOfStock') : (cartItems.find(it => it.product._id === id)?.quantity || 0) >= product.stockQuantity ? t('common.inCart') : t('common.addToCart')}
+                            {product.stockQuantity <= 0 ? t('product.outOfStock') : (cartItems.find(it => it.product._id === id)?.quantity || 0) >= product.stockQuantity ? t('product.inCart') : t('product.addToCart')}
                         </Button>
                         <Button
                             fullWidth
@@ -522,7 +522,7 @@ export const ProductDetails = () => {
                             color="secondary"
                             onClick={() => { if(product.stockQuantity > 0) { handleAddToCart(); navigate('/cart'); } }}
                             disabled={product.stockQuantity <= 0}
-                            sx={{ fontSize: '0.8rem' }}
+                            sx={{ fontSize: '0.8rem', whiteSpace: 'nowrap' }}
                         >
                             {t('common.buyNow')}
                         </Button>

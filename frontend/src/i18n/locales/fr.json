@@ -21,7 +21,7 @@
       "seller": "Vendeur",
       "admin": "Admin"
     },
-    "chat": "Discuter",
+    "chat": "Chat",
     "send": "Envoyer",
     "cancel": "Annuler",
     "actions": {
@@ -271,6 +271,9 @@
     "placeholders": {
       "search": "Rechercher des produits par nom, SKU...",
       "shortDescription": "Bref résumé (1-2 lignes)"
-    }
+    },
+    "addToCart": "Ajouter au panier",
+    "outOfStock": "Rupture de stock",
+    "inCart": "Déjà au panier"
   }
 }

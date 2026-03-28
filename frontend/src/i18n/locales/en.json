@@ -122,7 +122,10 @@
     "placeholders": {
       "search": "Search products by name, SKU...",
       "shortDescription": "Brief summary (1-2 lines)"
-    }
+    },
+    "addToCart": "Add to cart",
+    "outOfStock": "Out of stock",
+    "inCart": "Already in cart"
   },
   "home": {
     "recentlyViewed": "Recently viewed",
