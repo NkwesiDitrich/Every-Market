@@ -152,11 +152,15 @@ export const Navbar = ({ isProductList = false }) => {
             <SearchIcon sx={{ color: 'text.secondary', mr: 1 }} />
             <Box sx={{ mr: 1, display: { xs: 'none', lg: 'block' } }}>
               <Chip 
-                label={activeRole === 'seller' ? t('Seller Mode') : t('Shopping Mode')} 
+                label={activeRole === 'admin' ? t('Admin Mode') : activeRole === 'seller' ? t('Seller Mode') : t('Shopping Mode')} 
                 size="small" 
-                color={activeRole === 'seller' ? 'success' : 'primary'} 
-                variant="outlined"
-                sx={{ fontWeight: 700, borderRadius: 1 }}
+                color={activeRole === 'admin' ? 'secondary' : activeRole === 'seller' ? 'success' : 'primary'} 
+                variant={activeRole === 'buyer' ? 'outlined' : 'filled'}
+                sx={{ 
+                  fontWeight: 700, 
+                  borderRadius: 1,
+                  color: (activeRole === 'admin' || activeRole === 'seller') ? '#fff' : undefined
+                }}
               />
             </Box>
             <InputBase

@@ -32,7 +32,13 @@ export const AdminBanners = () => {
   const status = useSelector(selectAdminBannersStatus)
   const [open, setOpen] = useState(false)
   const [editing, setEditing] = useState(null)
-  const { register, handleSubmit, reset } = useForm()
+  
+  // File upload state
+  const [selectedFile, setSelectedFile] = useState(null)
+  const [previewUrl, setPreviewUrl] = useState(null)
+
+  const { register, handleSubmit, reset, setValue, watch } = useForm()
+  const currentImageUrl = watch("imageUrl")
 
   useEffect(() => {
     dispatch(fetchBannersForAdminAsync())
@@ -40,6 +46,8 @@ export const AdminBanners = () => {
 
   const handleOpenCreate = () => {
     setEditing(null)
+    setSelectedFile(null)
+    setPreviewUrl(null)
     reset({
       title: "",
       imageUrl: "",
@@ -52,6 +60,8 @@ export const AdminBanners = () => {
 
   const handleOpenEdit = (banner) => {
     setEditing(banner)
+    setSelectedFile(null)
+    setPreviewUrl(null)
     reset({
       title: banner.title,
       imageUrl: banner.imageUrl,
@@ -62,20 +72,44 @@ export const AdminBanners = () => {
     setOpen(true)
   }
 
-  const handleClose = () => setOpen(false)
+  const handleClose = () => {
+    setOpen(false)
+    if (previewUrl) URL.revokeObjectURL(previewUrl)
+  }
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0]
+    if (file) {
+      setSelectedFile(file)
+      const url = URL.createObjectURL(file)
+      setPreviewUrl(url)
+    }
+  }
 
   const onSubmit = async (data) => {
     try {
-      const payload = {
-        ...data,
-        priority: Number(data.priority ?? 0),
-        active: Boolean(data.active),
+      const formData = new FormData()
+      formData.append("title", data.title)
+      formData.append("linkUrl", data.linkUrl || "")
+      formData.append("priority", data.priority || 0)
+      formData.append("active", data.active)
+
+      if (selectedFile) {
+        formData.append("image", selectedFile)
+      } else if (editing) {
+        formData.append("imageUrl", data.imageUrl)
       }
+
       if (editing) {
-        await updateBanner({ ...editing, ...payload })
+        formData.append("_id", editing._id)
+        await updateBanner(formData)
         toast.success("Banner updated")
       } else {
-        await createBanner(payload)
+        if (!selectedFile) {
+            toast.error("Please upload an image")
+            return
+        }
+        await createBanner(formData)
         toast.success("Banner created")
       }
       setOpen(false)
@@ -119,8 +153,14 @@ export const AdminBanners = () => {
                   aspectRatio: "16/9",
                   bgcolor: "background.default",
                   overflow: "hidden",
+                  position: 'relative'
                 }}
               >
+                {!banner.active && (
+                   <Box sx={{ position: 'absolute', top: 10, right: 10, bgcolor: 'error.main', color: '#fff', px: 1, borderRadius: 1, fontSize: '0.75rem', fontWeight: 700 }}>
+                    INACTIVE
+                   </Box>
+                )}
                 <img
                   src={banner.imageUrl}
                   alt={banner.title}
@@ -131,7 +171,7 @@ export const AdminBanners = () => {
                 <Stack spacing={0.5}>
                   <Typography fontWeight={600}>{banner.title}</Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Priority {banner.priority} · {banner.active ? "Active" : "Inactive"}
+                    Priority {banner.priority} · {banner.linkUrl ? "Linked" : "No Link"}
                   </Typography>
                 </Stack>
               </CardContent>
@@ -152,22 +192,69 @@ export const AdminBanners = () => {
         <DialogTitle>{editing ? "Update banner" : "Create banner"}</DialogTitle>
         <DialogContent>
           <Stack spacing={2} mt={1}>
-            <TextField label="Title" fullWidth {...register("title", { required: true })} />
-            <TextField label="Image URL" fullWidth {...register("imageUrl", { required: true })} />
-            <TextField label="Link URL" fullWidth {...register("linkUrl")} />
+            <TextField label="Title" placeholder="e.g. Summer Collection" fullWidth {...register("title", { required: true })} />
+            
+            <Box>
+                <Typography variant="subtitle2" gutterBottom color="text.secondary">Banner Image</Typography>
+                <Box 
+                    sx={{ 
+                        width: '100%', 
+                        height: 180, 
+                        border: '2px dashed #E0E0E0', 
+                        borderRadius: 2, 
+                        display: 'flex', 
+                        flexDirection: 'column',
+                        alignItems: 'center', 
+                        justifyContent: 'center',
+                        overflow: 'hidden',
+                        position: 'relative',
+                        bgcolor: 'background.default'
+                    }}
+                >
+                    {(previewUrl || currentImageUrl) ? (
+                        <>
+                            <img 
+                                src={previewUrl || currentImageUrl} 
+                                style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                                alt="Preview" 
+                            />
+                            <Button 
+                                component="label" 
+                                variant="contained" 
+                                size="small"
+                                sx={{ position: 'absolute', bottom: 10, right: 10 }}
+                            >
+                                Change Image
+                                <input type="file" hidden accept="image/*" onChange={handleFileChange} />
+                            </Button>
+                        </>
+                    ) : (
+                        <Stack spacing={1} alignItems="center">
+                            <Typography variant="body2" color="text.secondary">No image selected</Typography>
+                            <Button component="label" variant="outlined" size="small">
+                                Upload Image
+                                <input type="file" hidden accept="image/*" onChange={handleFileChange} />
+                            </Button>
+                        </Stack>
+                    )}
+                </Box>
+            </Box>
+
+            <TextField label="Link URL" placeholder="e.g. /products/shoes" fullWidth {...register("linkUrl")} />
             <TextField
               label="Priority"
               type="number"
+              placeholder="Higher = shows first"
               fullWidth
               {...register("priority", { valueAsNumber: true })}
             />
-            <FormControlLabel control={<Switch defaultChecked {...register("active")} />} label="Active" />
+            <FormControlLabel control={<Switch defaultChecked {...register("active")} />} label="Active Status" />
           </Stack>
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
           <Button onClick={handleClose}>Cancel</Button>
           <LoadingButton onClick={handleSubmit(onSubmit)} variant="contained">
-            Save
+            {editing ? "Update Banner" : "Create Banner"}
           </LoadingButton>
         </DialogActions>
       </Dialog>

@@ -271,7 +271,9 @@ const authSlice=createSlice({
                 state.isAuthChecked=true
                 // Initialize activeRole based on user roles if not already set or if user is only a seller
                 if (action.payload) {
-                    if (action.payload.role === 'seller') {
+                    if (action.payload.role === 'admin') {
+                        state.activeRole = 'admin';
+                    } else if (action.payload.role === 'seller') {
                         state.activeRole = 'seller';
                     } else {
                         state.activeRole = 'buyer';

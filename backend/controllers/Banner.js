@@ -49,7 +49,11 @@ exports.listForAdmin = async (req, res) => {
 
 exports.create = async (req, res) => {
   try {
-    const created = await Banner.create(req.body)
+    const data = { ...req.body }
+    if (req.file) {
+      data.imageUrl = req.file.path
+    }
+    const created = await Banner.create(data)
     return res.status(201).json(created)
   } catch (error) {
     console.log(error)
@@ -60,7 +64,11 @@ exports.create = async (req, res) => {
 exports.updateById = async (req, res) => {
   try {
     const { id } = req.params
-    const updated = await Banner.findByIdAndUpdate(id, req.body, { new: true }).exec()
+    const data = { ...req.body }
+    if (req.file) {
+      data.imageUrl = req.file.path
+    }
+    const updated = await Banner.findByIdAndUpdate(id, data, { new: true }).exec()
     if (!updated) return res.status(404).json({ message: "Banner not found" })
     return res.status(200).json(updated)
   } catch (error) {

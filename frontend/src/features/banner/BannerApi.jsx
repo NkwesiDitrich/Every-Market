@@ -16,7 +16,8 @@ export const createBanner = async (payload) => {
 }
 
 export const updateBanner = async (payload) => {
-  const res = await axiosi.patch(`/banners/admin/${payload._id}`, payload)
+  const id = payload instanceof FormData ? payload.get("_id") : payload._id
+  const res = await axiosi.patch(`/banners/admin/${id}`, payload)
   return res.data
 }
 
