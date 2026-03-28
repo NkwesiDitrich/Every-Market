@@ -22,13 +22,14 @@ import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectUserInfo } from '../../user/UserSlice';
 import { selectCartItems } from '../../cart/CartSlice';
-import { selectLoggedInUser } from '../../auth/AuthSlice';
+import { selectLoggedInUser, selectActiveRole } from '../../auth/AuthSlice';
 import { selectWishlistItems } from '../../wishlist/WishlistSlice';
 import { selectProductIsFilterOpen, toggleFilters, selectSearchQuery, setSearchQuery } from '../../products/ProductSlice';
 import { selectSellerProfile } from '../../seller/SellerSlice';
 import { NotificationCenter } from '../../notification/components/NotificationCenter';
 import { fetchNotificationsAsync, selectUnreadCount } from '../../notification/NotificationSlice';
 import { LanguageSwitcher } from './LanguageSwitcher';
+import { RoleSwitcher } from './RoleSwitcher';
 
 
 
@@ -40,6 +41,7 @@ export const Navbar = ({ isProductList = false }) => {
   const cartItems = useSelector(selectCartItems)
   const loggedInUser = useSelector(selectLoggedInUser)
   const searchQuery = useSelector(selectSearchQuery)
+  const activeRole = useSelector(selectActiveRole)
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const theme = useTheme()
@@ -79,15 +81,24 @@ export const Navbar = ({ isProductList = false }) => {
   const settings = [
     { name: t('Home'), to: "/" },
     { name: t('Profile'), to: "/profile" },
-    { name: t('Orders'), to: "/orders" },
-    { name: t('Inbox'), to: "/inbox" },
-    { name: t('My Disputes'), to: "/disputes" },
-    ...(loggedInUser?.role === 'seller' || sellerProfile?.status === 'approved'
-      ? [{ name: t('Seller Dashboard'), to: "/seller/dashboard" }]
-      : loggedInUser?.role === 'admin'
-        ? [{ name: t('Admin Dashboard'), to: "/admin/dashboard" }]
-        : [{ name: t('Become a Seller'), to: "/seller/apply" }]
-    ),
+    ...(activeRole === 'buyer' ? [
+      { name: t('Orders'), to: "/orders" },
+      { name: t('Inbox'), to: "/inbox" },
+      { name: t('My Disputes'), to: "/disputes" },
+      ...(loggedInUser?.role === 'seller' || sellerProfile?.status === 'approved'
+        ? [] // Switcher handled separately, or maybe add a "Go to Dashboard" shortcut
+        : loggedInUser?.role === 'admin'
+          ? []
+          : [{ name: t('Become a Seller'), to: "/seller/apply" }]
+      )
+    ] : [
+      ...(loggedInUser?.role === 'seller' || sellerProfile?.status === 'approved'
+        ? [{ name: t('Seller Dashboard'), to: "/seller/dashboard" }, { name: t('My Products'), to: "/seller/products" }]
+        : loggedInUser?.role === 'admin'
+          ? [{ name: t('Admin Dashboard'), to: "/admin/dashboard" }]
+          : []
+      )
+    ]),
     { name: t('Logout'), to: "/logout" },
   ];
 
@@ -139,6 +150,15 @@ export const Navbar = ({ isProductList = false }) => {
             }}
           >
             <SearchIcon sx={{ color: 'text.secondary', mr: 1 }} />
+            <Box sx={{ mr: 1, display: { xs: 'none', lg: 'block' } }}>
+              <Chip 
+                label={activeRole === 'seller' ? t('Seller Mode') : t('Shopping Mode')} 
+                size="small" 
+                color={activeRole === 'seller' ? 'success' : 'primary'} 
+                variant="outlined"
+                sx={{ fontWeight: 700, borderRadius: 1 }}
+              />
+            </Box>
             <InputBase
               fullWidth
               placeholder={t('Search')}
@@ -159,6 +179,9 @@ export const Navbar = ({ isProductList = false }) => {
 
         {/* Global Utilities */}
         <Stack direction="row" spacing={1} alignItems="center">
+          
+          {/* Role Switcher - Desktop */}
+          {!isMobile && <RoleSwitcher />}
 
           {/* Notifications */}
           <IconButton onClick={() => setIsNotificationOpen(true)} size="medium" sx={{ color: 'text.primary' }}>

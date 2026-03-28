@@ -6,7 +6,7 @@ import Favorite from '@mui/icons-material/Favorite';
 import Checkbox from '@mui/material/Checkbox';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectWishlistItems } from '../../wishlist/WishlistSlice';
-import { selectLoggedInUser } from '../../auth/AuthSlice';
+import { selectLoggedInUser, selectActiveRole } from '../../auth/AuthSlice';
 import { addToCartAsync, selectCartItems, selectCartItemAddStatus } from '../../cart/CartSlice';
 import { motion } from 'framer-motion'
 import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
@@ -24,6 +24,7 @@ export const ProductCard = ({ id, title, price, thumbnail, brand, stockQuantity,
     const cartItems = useSelector(selectCartItems)
     const dispatch = useDispatch()
     const theme = useTheme()
+    const activeRole = useSelector(selectActiveRole)
     const comparisonList = useSelector(selectComparisonList)
 
     const isProductAlreadyinWishlist = wishlistItems.some((item) => item.product?._id === id)
@@ -83,7 +84,7 @@ export const ProductCard = ({ id, title, price, thumbnail, brand, stockQuantity,
                 onClick={() => navigate(`/product-details/${id}`)}
             >
                 {/* Wishlist Toggle */}
-                {!isAdminCard && (
+                {!isAdminCard && activeRole === 'buyer' && (
                     <Box sx={{ position: 'absolute', top: 12, right: 12, zIndex: 2 }}>
                         <Checkbox
                             size="small"
@@ -131,7 +132,7 @@ export const ProductCard = ({ id, title, price, thumbnail, brand, stockQuantity,
                         </Stack>
 
                         {/* Quick View/Add Button */}
-                        {!isAdminCard && !isWishlistCard && (
+                        {!isAdminCard && !isWishlistCard && activeRole === 'buyer' && (
                             <Stack direction="row" spacing={1}>
                                 <IconButton
                                     size="small"

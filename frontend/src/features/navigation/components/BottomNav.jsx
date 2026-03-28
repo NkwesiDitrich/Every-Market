@@ -8,6 +8,7 @@ import PersonIcon from '@mui/icons-material/PersonOutline';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { selectCartItems } from '../../cart/CartSlice';
+import { selectActiveRole } from '../../auth/AuthSlice';
 
 export const BottomNav = () => {
     const theme = useTheme();
@@ -15,6 +16,7 @@ export const BottomNav = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const cartItems = useSelector(selectCartItems);
+    const activeRole = useSelector(selectActiveRole);
 
     // Only show on mobile
     if (!isMobile) return null;
@@ -23,8 +25,8 @@ export const BottomNav = () => {
         const path = location.pathname;
         if (path === '/') return 0;
         if (path.includes('/categories')) return 1;
-        if (path.includes('/search')) return 2;
-        if (path.includes('/cart')) return 3;
+        if (path.includes('/search') || path.includes('/seller/dashboard')) return 2;
+        if (path.includes('/cart') || path.includes('/seller/orders')) return 3;
         if (path.includes('/profile') || path.includes('/orders')) return 4;
         return 0;
     };
@@ -49,9 +51,9 @@ export const BottomNav = () => {
                 onChange={(event, newValue) => {
                     switch (newValue) {
                         case 0: navigate('/'); break;
-                        case 1: navigate('/categories'); break; // Placeholder for categories page
-                        case 2: navigate('/search'); break; // Placeholder for search page
-                        case 3: navigate('/cart'); break;
+                        case 1: navigate(activeRole === 'buyer' ? '/categories' : '/seller/products'); break; 
+                        case 2: navigate(activeRole === 'buyer' ? '/search' : '/seller/dashboard'); break; 
+                        case 3: navigate(activeRole === 'buyer' ? '/cart' : '/seller/orders'); break;
                         case 4: navigate('/profile'); break;
                         default: navigate('/');
                     }
@@ -67,15 +69,19 @@ export const BottomNav = () => {
                     },
                 }}
             >
-                <BottomNavigationAction label="Home" icon={<HomeIcon />} />
-                <BottomNavigationAction label="Categories" icon={<CategoryIcon />} />
-                <BottomNavigationAction label="Search" icon={<SearchIcon />} />
+                <BottomNavigationAction label={activeRole === 'buyer' ? "Home" : "Dashboard"} icon={<HomeIcon />} />
+                <BottomNavigationAction label={activeRole === 'buyer' ? "Categories" : "Products"} icon={<CategoryIcon />} />
+                <BottomNavigationAction label={activeRole === 'buyer' ? "Search" : "Dashboard"} icon={<SearchIcon />} />
                 <BottomNavigationAction
-                    label="Cart"
+                    label={activeRole === 'buyer' ? "Cart" : "Orders"}
                     icon={
-                        <Badge badgeContent={cartItems.length} color="error">
-                            <ShoppingCartIcon />
-                        </Badge>
+                        activeRole === 'buyer' ? (
+                            <Badge badgeContent={cartItems.length} color="error">
+                                <ShoppingCartIcon />
+                            </Badge>
+                        ) : (
+                            <CategoryIcon /> // Fallback icon for seller orders
+                        )
                     }
                 />
                 <BottomNavigationAction label="Profile" icon={<PersonIcon />} />

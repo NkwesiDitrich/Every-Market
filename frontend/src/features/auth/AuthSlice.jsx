@@ -30,7 +30,8 @@ const initialState={
     confirm2FAStatus:"idle",
     confirm2FAError:null,
     disable2FAStatus:"idle",
-    disable2FAError:null
+    disable2FAError:null,
+    activeRole: "buyer" // Default to buyer mode
 }
 
 export const signupAsync=createAsyncThunk('auth/signupAsync',async(cred)=>{
@@ -165,6 +166,9 @@ const authSlice=createSlice({
         resetDisable2FAStatus:(state)=>{
             state.disable2FAStatus="idle"
             state.disable2FAError=null
+        },
+        setActiveRole:(state,action)=>{
+            state.activeRole=action.payload
         }
     },
     extraReducers:(builder)=>{
@@ -265,6 +269,14 @@ const authSlice=createSlice({
                 state.status='fullfilled'
                 state.loggedInUser=action.payload
                 state.isAuthChecked=true
+                // Initialize activeRole based on user roles if not already set or if user is only a seller
+                if (action.payload) {
+                    if (action.payload.role === 'seller') {
+                        state.activeRole = 'seller';
+                    } else {
+                        state.activeRole = 'buyer';
+                    }
+                }
             })
             .addCase(checkAuthAsync.rejected,(state,action)=>{
                 state.status='rejected'
@@ -357,9 +369,10 @@ export const selectConfirm2FAStatus=(state)=>state.AuthSlice.confirm2FAStatus
 export const selectConfirm2FAError=(state)=>state.AuthSlice.confirm2FAError
 export const selectDisable2FAStatus=(state)=>state.AuthSlice.disable2FAStatus
 export const selectDisable2FAError=(state)=>state.AuthSlice.disable2FAError
+export const selectActiveRole=(state)=>state.AuthSlice.activeRole
 
 // exporting reducers
-export const {clearAuthSuccessMessage,clearAuthErrors,resetAuthStatus,clearSignupError,resetSignupStatus,clearLoginError,resetLoginStatus,clearOtpVerificationError,resetOtpVerificationStatus,clearResendOtpError,clearResendOtpSuccessMessage,resetResendOtpStatus,clearForgotPasswordError,clearForgotPasswordSuccessMessage,resetForgotPasswordStatus,clearResetPasswordError,clearResetPasswordSuccessMessage,resetResetPasswordStatus,clearPending2FA,resetVerify2FAStatus,resetEnable2FAStatus,resetConfirm2FAStatus,resetDisable2FAStatus}=authSlice.actions
+export const {setActiveRole,clearAuthSuccessMessage,clearAuthErrors,resetAuthStatus,clearSignupError,resetSignupStatus,clearLoginError,resetLoginStatus,clearOtpVerificationError,resetOtpVerificationStatus,clearResendOtpError,clearResendOtpSuccessMessage,resetResendOtpStatus,clearForgotPasswordError,clearForgotPasswordSuccessMessage,resetForgotPasswordStatus,clearResetPasswordError,clearResetPasswordSuccessMessage,resetResetPasswordStatus,clearPending2FA,resetVerify2FAStatus,resetEnable2FAStatus,resetConfirm2FAStatus,resetDisable2FAStatus}=authSlice.actions
 
 export default authSlice.reducer
 
