@@ -310,7 +310,7 @@ export const SellerPromotionsPage = () => {
                       <Stack direction="row" justifyContent="space-between" alignItems="flex-start" mb={2}>
                         <Box>
                           <Typography variant="h6" fontWeight={800} noWrap sx={{ maxWidth: 200 }}>{b.name}</Typography>
-                          <Typography variant="h5" fontWeight={900} sx={{ mt: 0.5 }}>${b.bundlePrice.toFixed(2)}</Typography>
+                          <Typography variant="h5" fontWeight={900} sx={{ mt: 0.5 }}>{b.bundlePrice.toFixed(0)} CFA</Typography>
                         </Box>
                         <Stack direction="row" spacing={0.5}>
                           <IconButton size="small" onClick={() => handleOpenBundle(b)} sx={{ bgcolor: 'action.hover' }}>
@@ -380,7 +380,7 @@ export const SellerPromotionsPage = () => {
                     <InputLabel>Discount Type</InputLabel>
                     <Select label="Discount Type" {...couponForm.register("type")} defaultValue="percentage">
                       <MenuItem value="percentage">Percentage (%)</MenuItem>
-                      <MenuItem value="fixed">Fixed Amount ($)</MenuItem>
+                      <MenuItem value="fixed">Fixed Amount (CFA)</MenuItem>
                     </Select>
                   </FormControl>
                 </Grid>
@@ -390,10 +390,10 @@ export const SellerPromotionsPage = () => {
               </Grid>
               <Grid container spacing={2}>
                 <Grid item xs={12} sm={6}>
-                  <TextField type="number" label="Min Order Value ($)" fullWidth {...couponForm.register("minOrderValue", { valueAsNumber: true })} />
+                  <TextField type="number" label="Min Order Value (CFA)" fullWidth {...couponForm.register("minOrderValue", { valueAsNumber: true })} />
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                  <TextField type="number" label="Max Discount ($)" placeholder="Optional" fullWidth {...couponForm.register("maxDiscount")} />
+                  <TextField type="number" label="Max Discount (CFA)" placeholder="Optional" fullWidth {...couponForm.register("maxDiscount")} />
                 </Grid>
               </Grid>
               <TextField type="number" label="Total Usage Limit" placeholder="How many times can this be used? (Optional)" fullWidth {...couponForm.register("usageLimit")} />
@@ -433,7 +433,7 @@ export const SellerPromotionsPage = () => {
                     <MenuItem key={p._id} value={p._id}>
                       <Stack direction="row" spacing={1.5} alignItems="center">
                         <Avatar src={p.thumbnail} sx={{ width: 24, height: 24 }} />
-                        <Typography variant="body2">{p.title} · ${p.price}</Typography>
+                        <Typography variant="body2">{p.title} · {p.price} CFA</Typography>
                       </Stack>
                     </MenuItem>
                   ))}
@@ -441,7 +441,7 @@ export const SellerPromotionsPage = () => {
               </FormControl>
               <TextField
                 type="number"
-                label="Bundle Sale Price ($)"
+                label="Bundle Sale Price (CFA)"
                 fullWidth required
                 {...bundleForm.register("bundlePrice", { required: true, valueAsNumber: true })}
                 helperText="Set a price lower than the total of individual products."

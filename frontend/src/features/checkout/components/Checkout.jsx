@@ -336,7 +336,7 @@ export const Checkout = () => {
                                                     Redeem Loyalty Points
                                                 </Typography>
                                                 <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>
-                                                    Balance: {loyaltyBalance} pts (100 pts = $1)
+                                                    Balance: {loyaltyBalance} pts (1 pt = 1 CFA)
                                                 </Typography>
                                                 <TextField
                                                     size="small"
