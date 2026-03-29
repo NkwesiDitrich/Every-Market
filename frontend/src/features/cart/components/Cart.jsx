@@ -14,6 +14,8 @@ import { updateCartItemByIdAsync, deleteCartItemByIdAsync } from '../CartSlice'
 import { IconButton } from '@mui/material'
 import ShareIcon from '@mui/icons-material/Share';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import { RoleGuard } from '../../auth/components/RoleGuard';
+import { selectActiveRole } from '../../auth/AuthSlice';
 
 const NO_IMAGE_BASE64 = `data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjIwMCIgaGVpZ2h0PSIyMDAiIGZpbGw9IiNGM0Y0RjYiLz48cGF0aCBkPSJNNjYuNjY2NyA2Ni42NjY3SDEzMy4zMzNWMTMzLjMzM0g2Ni42NjY3VjY2LjY2NjdaIiBzdHJva2U9IiM5Q0EzQUYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPjxwYXRoIGQ9Ik02Ni42NjY3IDExNi42NjdMODMuMzMzMyAxMDBMMTAzLjMzMyAxMjBMMTE2LjY2NyAxMDYuNjY3TDEzMy4zMzMgMTIzLjMzMyIgc3Ryb2tlPSIjOUNBM0FGIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPjxjaXJjbGUgY3g9IjgzLjMzMzMiIGN5PSI4My4zMzMzIiByPSI2LjY2NjY3IiBmaWxsPSIjOUNBM0FGIi8+PC9zdmc+`
 
@@ -289,16 +291,28 @@ export const Cart = ({ checkout, appliedCoupon, loyaltyDiscount = 0 }) => {
                                         <Typography variant="h6" fontWeight={800}>{subtotal.toFixed(2)} CFA</Typography>
                                     </Stack>
 
-                                    <Button
-                                        fullWidth
-                                        variant="contained"
-                                        size="large"
-                                        component={Link}
-                                        to="/checkout"
-                                        sx={{ py: 2, borderRadius: 3, mt: 2, fontWeight: 700 }}
+                                    <RoleGuard 
+                                        roles={['buyer']} 
+                                        fallback={
+                                            <Box sx={{ mt: 2, p: 2, bgcolor: 'action.hover', borderRadius: 2 }}>
+                                                <Typography variant="body2" color="text.secondary" align="center">
+                                                    You are currently in <strong>{activeRole} Mode</strong>. 
+                                                    Please switch to <strong>Buyer Mode</strong> to proceed with checkout.
+                                                </Typography>
+                                            </Box>
+                                        }
                                     >
-                                        Proceed to Checkout
-                                    </Button>
+                                        <Button
+                                            fullWidth
+                                            variant="contained"
+                                            size="large"
+                                            component={Link}
+                                            to="/checkout"
+                                            sx={{ py: 2, borderRadius: 3, mt: 2, fontWeight: 700 }}
+                                        >
+                                            Proceed to Checkout
+                                        </Button>
+                                    </RoleGuard>
 
                                     <Button
                                         fullWidth

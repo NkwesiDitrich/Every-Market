@@ -35,6 +35,7 @@ import ExpandLessIcon from "@mui/icons-material/ExpandLess"
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore"
 import LightModeIcon from "@mui/icons-material/LightMode"
 import DarkModeIcon from "@mui/icons-material/DarkMode"
+import { motion, AnimatePresence } from "framer-motion"
 import { selectLoggedInUser } from "../features/auth/AuthSlice"
 import { useThemeMode } from "../context/ThemeModeContext"
 import { Link } from "react-router-dom"
@@ -42,6 +43,7 @@ import { LanguageSwitcher } from "../features/navigation/components/LanguageSwit
 import { useDispatch } from "react-redux"
 import { fetchNotificationsAsync, selectUnreadCount } from "../features/notification/NotificationSlice"
 import { NotificationCenter } from "../features/notification/components/NotificationCenter"
+import { BottomNav } from "../features/navigation/components/BottomNav"
 
 const drawerWidth = 260
 const miniDrawerWidth = 72
@@ -182,6 +184,7 @@ export const AdminLayout = ({ children }) => {
   const location = useLocation()
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down("md"))
+  const isSmall = useMediaQuery(theme.breakpoints.down("sm"))
   const { mode, toggleMode } = useThemeMode()
   const [mobileOpen, setMobileOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
@@ -402,19 +405,29 @@ export const AdminLayout = ({ children }) => {
           component="main"
           sx={{
             flex: 1,
-            p: { xs: 2, md: 3 },
+            p: { xs: 2, md: 4 },
+            pb: isSmall ? "80px" : 4, // Space for bottom nav on mobile
+            bgcolor: mode === "dark" ? alpha(theme.palette.background.default, 0.5) : alpha("#F8FAFC", 1),
             overflow: "auto",
           }}
         >
-          <Stack spacing={3}>{children}</Stack>
+          <Box sx={{ maxWidth: 1600, mx: "auto" }}>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={location.pathname}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+              >
+                <Stack spacing={4}>
+                  {children}
+                </Stack>
+              </motion.div>
+            </AnimatePresence>
+          </Box>
         </Box>
-
-        {/* Footer */}
-        <Box sx={{ px: 3, py: 1.5, borderTop: "1px solid", borderColor: "divider" }}>
-          <Typography variant="caption" color="text.secondary">
-            Every Market Admin Console · {new Date().getFullYear()}
-          </Typography>
-        </Box>
+        <BottomNav />
       </Box>
     </Box>
   )

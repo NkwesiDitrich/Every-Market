@@ -7,6 +7,7 @@ import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
 import { addToCartAsync, resetCartItemAddStatus, selectCartItemAddStatus, selectCartItems } from '../../cart/CartSlice'
+import { RoleGuard } from '../../auth/components/RoleGuard';
 import { selectLoggedInUser } from '../../auth/AuthSlice'
 import { fetchReviewsByProductIdAsync, resetReviewFetchStatus, selectReviewFetchStatus, selectReviews, } from '../../review/ReviewSlice'
 import { Reviews } from '../../review/components/Reviews'
@@ -392,28 +393,30 @@ export const ProductDetails = () => {
                                         <IconButton onClick={handleIncreaseQty} size="small"><AddIcon /></IconButton>
                                     </Stack>
                                     {!isMobile && (
-                                        <Stack direction="row" spacing={2} width="100%" sx={{ flexWrap: { xs: 'wrap', sm: 'nowrap' }, gap: { xs: 2, sm: 0 } }}>
-                                            <Button
-                                                variant="contained"
-                                                size="large"
-                                                onClick={handleAddToCart}
-                                                disabled={product.stockQuantity <= 0 || (cartItems.find(it => it.product._id === id)?.quantity || 0) >= product.stockQuantity}
-                                                startIcon={<ShoppingCartOutlinedIcon />}
-                                                sx={{ height: 50, flex: 2, minWidth: { xs: '100%', sm: 'auto' } }}
-                                            >
-                                                {product.stockQuantity <= 0 ? t('product.outOfStock') : (cartItems.find(it => it.product._id === id)?.quantity || 0) >= product.stockQuantity ? t('product.inCart') : t('product.addToCart')}
-                                            </Button>
-                                            <Button
-                                                variant="outlined"
-                                                size="large"
-                                                color="secondary"
-                                                onClick={handleStartChat}
-                                                startIcon={<ChatBubbleOutlineIcon />}
-                                                sx={{ height: 50, flex: 1, minWidth: { xs: '100%', sm: 'auto' } }}
-                                            >
-                                                {t('common.chat')}
-                                            </Button>
-                                        </Stack>
+                                        <RoleGuard roles={['buyer']}>
+                                            <Stack direction="row" spacing={2} width="100%" sx={{ flexWrap: { xs: 'wrap', sm: 'nowrap' }, gap: { xs: 2, sm: 0 } }}>
+                                                <Button
+                                                    variant="contained"
+                                                    size="large"
+                                                    onClick={handleAddToCart}
+                                                    disabled={product.stockQuantity <= 0 || (cartItems.find(it => it.product._id === id)?.quantity || 0) >= product.stockQuantity}
+                                                    startIcon={<ShoppingCartOutlinedIcon />}
+                                                    sx={{ height: 50, flex: 2, minWidth: { xs: '100%', sm: 'auto' } }}
+                                                >
+                                                    {product.stockQuantity <= 0 ? t('product.outOfStock') : (cartItems.find(it => it.product._id === id)?.quantity || 0) >= product.stockQuantity ? t('product.inCart') : t('product.addToCart')}
+                                                </Button>
+                                                <Button
+                                                    variant="outlined"
+                                                    size="large"
+                                                    color="secondary"
+                                                    onClick={handleStartChat}
+                                                    startIcon={<ChatBubbleOutlineIcon />}
+                                                    sx={{ height: 50, flex: 1, minWidth: { xs: '100%', sm: 'auto' } }}
+                                                >
+                                                    {t('common.chat')}
+                                                </Button>
+                                            </Stack>
+                                        </RoleGuard>
                                     )}
                                 </Stack>
 

@@ -252,6 +252,17 @@ export const Navbar = ({ isProductList = false }) => {
             transformOrigin={{ vertical: 'top', horizontal: 'right' }}
             anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
           >
+            {isMobile && (loggedInUser?.role === 'seller' || loggedInUser?.role === 'admin' || loggedInUser?.isAdmin) && (
+              <Box sx={{ px: 2, pt: 1, pb: 1 }}>
+                <Typography variant="overline" color="text.secondary" sx={{ fontWeight: 700 }}>
+                  {t('Switch Mode')}
+                </Typography>
+                <Box sx={{ mt: 1 }}>
+                   <RoleSwitcher />
+                </Box>
+                <Divider sx={{ my: 1 }} />
+              </Box>
+            )}
             {settings.map((setting) => (
               <MenuItem key={setting.to} component={Link} to={setting.to} onClick={handleCloseUserMenu}>
                 <Typography variant="body2">{setting.name}</Typography>

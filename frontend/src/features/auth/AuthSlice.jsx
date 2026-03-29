@@ -269,15 +269,10 @@ const authSlice=createSlice({
                 state.status='fullfilled'
                 state.loggedInUser=action.payload
                 state.isAuthChecked=true
-                // Initialize activeRole based on user roles if not already set or if user is only a seller
-                if (action.payload) {
-                    if (action.payload.role === 'admin') {
-                        state.activeRole = 'admin';
-                    } else if (action.payload.role === 'seller') {
-                        state.activeRole = 'seller';
-                    } else {
-                        state.activeRole = 'buyer';
-                    }
+                // Always default to buyer mode on login/check unless explicitly switched
+                // This ensures a consistent shopping experience as a base
+                if (action.payload && !state.activeRole) {
+                    state.activeRole = 'buyer';
                 }
             })
             .addCase(checkAuthAsync.rejected,(state,action)=>{

@@ -35,6 +35,7 @@ import { useTranslation } from 'react-i18next'
 import { useDispatch } from "react-redux"
 import { fetchNotificationsAsync, selectNotifications, selectUnreadCount } from "../features/notification/NotificationSlice"
 import { NotificationCenter } from "../features/notification/components/NotificationCenter"
+import { BottomNav } from "../features/navigation/components/BottomNav"
 import { toast } from "react-toastify"
 
 const drawerWidth = 260
@@ -164,6 +165,7 @@ export const SellerLayout = ({ children }) => {
   const location = useLocation()
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down("md"))
+  const isSmall = useMediaQuery(theme.breakpoints.down("sm"))
   const { mode, toggleMode } = useThemeMode()
   const [mobileOpen, setMobileOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
@@ -412,6 +414,7 @@ export const SellerLayout = ({ children }) => {
           sx={{
             flex: 1,
             p: { xs: 2, md: 4 },
+            pb: isSmall ? "80px" : 4, // Space for bottom nav on mobile
             bgcolor: mode === "dark" ? alpha(theme.palette.background.default, 0.5) : alpha("#F8FAFC", 1),
             overflow: "auto",
           }}
@@ -432,6 +435,7 @@ export const SellerLayout = ({ children }) => {
             </AnimatePresence>
           </Box>
         </Box>
+        <BottomNav />
 
         {/* Minimal Footer */}
         <Box sx={{ px: 4, py: 2, bgcolor: "background.paper", borderTop: "1px solid", borderColor: "divider", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
