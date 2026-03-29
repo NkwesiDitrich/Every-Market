@@ -147,6 +147,7 @@ export const Cart = ({ checkout, appliedCoupon, loyaltyDiscount = 0 }) => {
     const cartItemRemoveStatus = useSelector(selectCartItemRemoveStatus)
     const shareableId = useSelector(selectShareableId)
     const shareStatus = useSelector(selectShareStatus)
+    const activeRole = useSelector(selectActiveRole);
     const dispatch = useDispatch()
 
     const handleShareCart = () => {

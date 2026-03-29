@@ -1,6 +1,6 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
-import { selectActiveRole } from '../auth/AuthSlice';
+import { selectActiveRole } from '../AuthSlice';
 
 /**
  * RoleGuard component to conditionally render children based on the active role mode.
